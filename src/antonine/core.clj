@@ -3,7 +3,7 @@
             [antonine.char-reader :refer [read-chars]]
             [clojure.java.io :refer [resource]]
             [clojure.pprint :refer [pprint]]
-            [clojure.string :as s :refer [trim upper-case]]
+            [clojure.string :as s]
             [clojure.tools.cli :refer [parse-opts]]
             [instaparse.core :refer  [parser]])
   (:gen-class))
@@ -11,7 +11,7 @@
 (defn- romanise [arg]
   (s/replace
    (s/replace
-    (upper-case arg)
+    (s/upper-case arg)
     "J" "I")
    "U" "V"))
 
@@ -41,7 +41,7 @@
     (try (loop []
            (flush)
            (try
-             (if-let [input (trim (upper-case (read-chars prompt)))]
+             (if-let [input (s/trim (s/upper-case (read-chars prompt)))]
                (if (or (empty? input) (= input stop-word))
                  (throw 
                   (ex-info 
@@ -91,4 +91,4 @@
 
     (if (empty? arguments) 
       (repl options)
-      (println (write-roman (calculate (grammar (trim (s/join " " arguments)))))))))
+      (println (write-roman (calculate (grammar (s/trim (s/join " " arguments)))))))))

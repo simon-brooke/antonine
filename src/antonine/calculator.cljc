@@ -1,7 +1,10 @@
 (ns antonine.calculator
-  (:require [clojure.math :refer [floor]]
-            [instaparse.core :refer [get-failure]])
-  (:import [java.lang NumberFormatException]))
+  (:require #?(:clj [clojure.java.io :refer [resource]])
+            #?(:clj [clojure.core :refer [format]]
+               :cljs [goog.string :refer [format]])
+            [clojure.math :refer [floor]]
+            [instaparse.core :refer [get-failure parser]])
+  #?(:clj (:import [java.lang NumberFormatException])))
 
 (defn incordec
   "In reading roman numerals, a lower value character preceding a higher value may imply a decrement
@@ -20,9 +23,15 @@
     (= c \C) (incordec accumulator 500 100)
     (= c \D) (+ 500 accumulator)
     (= c \M) (+ 1000 accumulator)
-    :else (throw
-           (NumberFormatException.
-            (format "Did not recognise the character '%c'", c)))))
+    :else (let [m (format "Did not recognise the character '%c' as valid in a Roman number", c)]
+            #?(:clj
+               (throw
+                (NumberFormatException. m))
+               :cljs
+               (throw {:type :number-format-exception
+                       :message m
+                       :character c
+                       :cause :reader})))))
 
 (defn read-roman
   "Read this `input`, interpreting it as a Roman numeral, and return the
@@ -87,27 +96,32 @@
   [arg1 arg2]
   (apply r-op (list / arg1 arg2)))
 
+
+(def ^:export grammar (parser #?(:clj (resource "grammar.bnf")
+                                      :cljs (js/require "grammar.bnf"))))
+
 (defn calculate
-  [parse-tree]
-  (let [failure-text (:text (get-failure parse-tree))]
-   (if (= :EXPRESSION (first parse-tree))
-    (case (count parse-tree)
-      2 (read-roman (second parse-tree))
-      4 (let [lhs (read-roman (second parse-tree))
-              op (case (first (nth parse-tree 2))
-                   :ADD +
-                   :MULTIPLY *
-                   :SUBTRACT -
-                   :DIVIDE /)
-              rhs (calculate (nth parse-tree 3))]
-          (int (floor (apply op (list lhs rhs)))))
+  [input]
+  (let [parse-tree (if (string? input) (grammar input) input)
+        failure-text (:text (get-failure parse-tree))]
+    (if (= :EXPRESSION (first parse-tree))
+      (case (count parse-tree)
+        2 (read-roman (second parse-tree))
+        4 (let [lhs (read-roman (second parse-tree))
+                op (case (first (nth parse-tree 2))
+                     :ADD +
+                     :MULTIPLY *
+                     :SUBTRACT -
+                     :DIVIDE /)
+                rhs (calculate (nth parse-tree 3))]
+            (int (floor (apply op (list lhs rhs)))))
       ;;else
-      (throw 
-       (ex-info 
-        (format "Unexpected parse tree '%s'" failure-text) 
-        {:problem parse-tree})))
-    (throw 
-     (ex-info 
-      (format "Unexpected expression: '%s'" failure-text) 
-      {:problem parse-tree})))))
+        (throw
+         (ex-info
+          (format "Unexpected parse tree '%s'" failure-text)
+          {:problem parse-tree})))
+      (throw
+       (ex-info
+        (format "Unexpected expression: '%s'" failure-text)
+        {:problem parse-tree})))))
 
