@@ -1,4 +1,4 @@
-# antonine
+# Introduction to antonine
 
 A calculator to aid military quantity surveyors
 
@@ -36,14 +36,6 @@ The following command line options are recognised:
   -s, --stop-word WORD   FINIS                                               The stop word to use at the end of a session
   -v, --verbosity LEVEL  0                                                   Verbosity level
 ```
-
-Verbosity levels as follows 
-
-1. shows the arabic rendition of the value as well as the roman rendition; 
-2. additionally also shows the parse tree of the input;
-3. currently not used;
-4. currently not used;
-5. additionally shows the parse of the command line options and arguments.
 
 An expression to evaluate may be passed as command line arguments, in which case options are ignored, that expression is evaluated, the result printed, and the program exits with an exit status of zero:
 
