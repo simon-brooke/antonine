@@ -22,7 +22,7 @@ There are solutions to katas very similar to this one on the 'net. Please don't 
 
 ## Usage
 
-Substantially rewritten for version 0.2.0, Antonine now has an interactive mode. You can download it as a jar file from here, and invoke the jar file:
+Substantially rewritten for version 0.2.0, Antonine now has an interactive mode. You can download it as a jar file from [here](https://github.com/simon-brooke/antonine/releases/tag/v0.2.0), and invoke the jar file:
 
 ```bash
 java -jar antonine-0.2.0-standalone.jar
