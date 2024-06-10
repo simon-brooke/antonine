@@ -1,11 +1,9 @@
 (ns antonine.core
-  (:require [antonine.calculator :refer [calculate write-roman]]
+  (:require [antonine.calculator :refer [calculate grammar write-roman]]
             [antonine.char-reader :refer [read-chars]]
-            [clojure.java.io :refer [resource]]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as s]
-            [clojure.tools.cli :refer [parse-opts]]
-            [instaparse.core :refer  [parser]])
+            [clojure.tools.cli :refer [parse-opts]])
   (:gen-class))
 
 (defn- romanise [arg]
@@ -30,8 +28,6 @@
    ;; A boolean option defaulting to nil
    ["-h" "--help"]])
 
-(def grammar (parser (resource "grammar.bnf")))
-
 (defn repl
   "Read/eval/print loop, using these command line `options`."
   [options]
@@ -47,10 +43,9 @@
                   (ex-info 
                    (format "\nVALE %s" (romanise (System/getProperty "user.name"))) 
                    {:cause :quit}))
-                 (let [tree (grammar input)
-                       v (calculate tree)]
+                 (let [v (calculate input)]
                    (when (> vrb 1) 
-                     (println (format "(Parse tree: %s)" tree)))
+                     (println (format "(Parse tree: %s)" (grammar input))))
                    (when (> vrb 0) (println (format "(Arabic: %d)" v)))
                    (println (write-roman v))))
                (println))
